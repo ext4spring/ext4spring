@@ -1,0 +1,10 @@
+
+
+CREATE TABLE parameters (
+	PARAMETER_ID IDENTITY,
+	DOMAIN VARCHAR(200),
+	PARAMETER VARCHAR(100),
+	DATA VARCHAR(4000)
+);
+
+CREATE UNIQUE INDEX parameters_idx ON parameters(domain,parameter);

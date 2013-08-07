@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2013 the original author
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<!-- Init Spring Param -->
+	<context:component-scan base-package="org.ext4spring.parameter" />
+
+	<!-- 1. Create repositories for each parameter source -->
+	<bean id="parameterRepository" class="org.ext4spring.parameter.dao.PropertyParameterRepository">
+		<property name="propertyResource" value="classpath:applicationSettings.properties" />
+		<property name="handledDomains">
+			<map><entry key="applicationSettings" value="READ_ONLY" /></map>		
+		</property>
+	</bean>
+
+	<!-- 2. Configure the parameter service and connect repositories for domains -->
+	<bean id="parameterService" class="org.ext4spring.parameter.DefaultParameterService">
+		<property name="parameterRepositories">
+			<set><ref bean="parameterRepository"/></set>
+		</property>
+	</bean>
+
+	<!-- 3. Configure Spring AOP to delegate requests for the ParameterAdvice -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+	<bean id="parameterAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="pointcut" ref="springParamJavaBeanPointcut" />
+		<property name="advice" ref="springParamDefaultParameterAdvice" />
+	</bean>
+
+	<!-- 4. Declare parameter beans. Because of the @ParameterBean annotation, the parameter pointcut will match and delegate requests to ParameterAdvice -->
+	<bean id="applicationConfiguration" class="org.ext4spring.parameter.example.ApplicationSettings" />
+
+
+	<!-- Optionally export beans to JMX  -->
+	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"> 
+		<property name="locateExistingServerIfPossible" value="true"/>
+	</bean>
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+			<map>
+				<entry key="springParam:name=applicationSettings" value-ref="applicationConfiguration" />
+			</map>
+		</property>
+		<property name="server" ref="mbeanServer" />
+	</bean>	
+</beans>
