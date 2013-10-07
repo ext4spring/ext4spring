@@ -24,6 +24,9 @@ public class TVConverter implements Converter {
 
     @Override
     public <T> T toTypedValue(String stringValue, Class<T> type) {
+        if (stringValue==null || stringValue.equalsIgnoreCase("null")) {
+            return null;
+        }
         try {
             try {
                 //with string constructor
@@ -54,6 +57,9 @@ public class TVConverter implements Converter {
 
     @Override
     public String toStringValue(Object typedValue) {
+        if (typedValue==null) {
+            return null;
+        }
         return typedValue.toString();
     }
 

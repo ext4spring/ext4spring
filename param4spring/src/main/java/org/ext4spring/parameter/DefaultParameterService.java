@@ -156,7 +156,7 @@ public class DefaultParameterService implements ParameterService, ApplicationCon
         return null;
     }
 
-    protected void setConverterFactory(ConverterFactory converterFactory) {
+    public void setConverterFactory(ConverterFactory converterFactory) {
         this.converterFactory = converterFactory;
     }
 
