@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.PropertyException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ext4spring.parameter.exception.ParameterException;
 import org.ext4spring.parameter.model.Metadata;
 import org.ext4spring.parameter.model.RepositoryMode;
@@ -37,6 +38,7 @@ public class PropertyParameterRepository extends AbstractParameterRepository {
 
 	private Properties properties;
 	private Resource propertyResource;
+        private static final Log LOGGER = LogFactory.getLog(PropertyParameterRepository.class);
 
 	protected String createKey(Metadata metadata) {
 		return metadata.getDomain() + "." + metadata.getFullParameterName();
@@ -70,9 +72,11 @@ public class PropertyParameterRepository extends AbstractParameterRepository {
 
 	@Override
 	public RepositoryMode getMode(String domain) {
-		if (!RepositoryMode.NONE.equals(super.getMode(domain))) {
-			//TODO: log if its overwritten
-			//TODO: test case
+	    RepositoryMode currentMode=super.getMode(domain);
+		if (!RepositoryMode.NONE.equals(currentMode)) {
+			if (!RepositoryMode.READ_ONLY.equals(currentMode)) {
+			    LOGGER.warn("Parameter repository only supports READ_ONLY mode, but configured as:"+currentMode);
+			}
 			return RepositoryMode.READ_ONLY;
 		}
 		return RepositoryMode.NONE;

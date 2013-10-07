@@ -21,13 +21,11 @@ import org.ext4spring.parameter.exception.ParameterConverterException;
 
 public class TVConverterFactory implements ConverterFactory {
 
-	private final TVConverter converter=new TVConverter();
+    private final TVConverter converter = new TVConverter();
 
-	@Override
-	public Converter getConverter(Class<?> clazz)
-			throws ParameterConverterException {
-	    //TODO: validate class (valueOf)
-		return this.converter;
-	}
+    @Override
+    public Converter getConverter(Class<?> clazz) throws ParameterConverterException {
+        return this.converter;
+    }
 
 }

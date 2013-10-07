@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.ext4spring.parameter.converter.Converter;
+import org.ext4spring.parameter.exception.ParameterConverterException;
 
 /**
  * Simple converter uses .toString and .valueOf for conversion
@@ -37,25 +38,18 @@ public class TVConverter implements Converter {
                 return typedValue;
            }
         } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+           throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         } catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ParameterConverterException("Error while converting value to object:"+stringValue, e);
         }
-        return null;
     }
 
     @Override

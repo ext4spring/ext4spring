@@ -21,13 +21,13 @@ import java.util.LinkedHashSet;
 import org.ext4spring.parameter.converter.ConverterFactory;
 import org.ext4spring.parameter.converter.simple.StringConverter;
 import org.ext4spring.parameter.dao.ParameterRepository;
+import org.ext4spring.parameter.exception.ParameterException;
 import org.ext4spring.parameter.exception.ParameterUndefinedException;
 import org.ext4spring.parameter.exception.RepositoryNotFoundException;
 import org.ext4spring.parameter.model.Metadata;
 import org.ext4spring.parameter.model.RepositoryMode;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -261,8 +261,6 @@ public class DefaultParameterServiceTest extends TestBase {
     }
 
     @Test
-    @Ignore
-    //TODO Fix
     public void testSelectWriteRepository() {
         Metadata metadata = new Metadata();
         metadata.setDomain("domain");
@@ -281,8 +279,12 @@ public class DefaultParameterServiceTest extends TestBase {
 
         testedRepositoryOrder = new ParameterRepository[] { repoNone, repoReadNotExists, repoReadExists, repoWriteExNotExists, repoWriteExExists, repoWriteAllNotExist, repoWriteAllExist };
         parameterService.setParameterRepositories(new LinkedHashSet<ParameterRepository>(Arrays.asList(testedRepositoryOrder)));
-        repositoryFound = parameterService.getWriteableRepository(metadata);
-        Assert.assertEquals(repoWriteExExists, repositoryFound);
+        try {
+            repositoryFound = parameterService.getWriteableRepository(metadata);
+            Assert.assertTrue("Exception should thrown becase parameter was read from a read only repo", false);
+        } catch (ParameterException e) {
+            //ok
+        }
 
     }
 

@@ -17,10 +17,8 @@ package org.ext4spring.parameter;
 
 import javax.sql.DataSource;
 
-import org.ext4spring.parameter.ParameterBeanService;
 import org.ext4spring.parameter.example.ApplicationSettings;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

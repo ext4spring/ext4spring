@@ -16,11 +16,12 @@
 package org.ext4spring.parameter.example;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.ext4spring.parameter.annotation.Parameter;
 import org.ext4spring.parameter.annotation.ParameterBean;
 import org.ext4spring.parameter.annotation.ParameterQualifier;
-import org.ext4spring.parameter.converter.PropertiesConverter;
 import org.ext4spring.parameter.converter.tv.TVConverter;
 
 /**
@@ -51,8 +52,12 @@ public class ApplicationSettings {
     private long size = SIZE;
     private double price;
     private Date releaseDate;
-    private String userColor;
+    private final Map<String,String> userColor = new HashMap<String, String>();
 
+    public ApplicationSettings() {
+        userColor.put(null, "black");
+    }
+    
     public boolean isSupported() {
         return supported;
     }
@@ -105,6 +110,6 @@ public class ApplicationSettings {
 
     @Parameter(converter=TVConverter.class)
     public String getUserColor(@ParameterQualifier String userName){
-        return this.userColor;
+        return this.userColor.get(userName);
     }
 }

@@ -143,7 +143,6 @@ public class DefaultParameterService implements ParameterService, ApplicationCon
                     break;
                 case READ_ONLY:
                     if (repository.parameterExists(metadata)) {
-                        //TODO: test case
                         //the parameter had been read from a read only repo, so it cannot be saved
                         throw new ParameterException("The parameter had been read from a read only repo, so it cannot be saved. Repository:" + repository + " Parameter:" + metadata);
                     }
