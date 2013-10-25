@@ -52,27 +52,48 @@ public class DefaultParameterResolver implements ParameterResolver {
         metadata.setDomain(this.resolveDomain(method));
         // parameter name and operation
         String methodName = method.getName();
+        String attributeName=null;
         if (methodName.startsWith("is")) {
             metadata.setOperation(Operation.GET);
-            metadata.setParameter(this.resolveParameterName(method, "is"));
+            attributeName=this.resolveAttributeName(method, "is", Operation.GET);
+            metadata.setParameter(this.resolveParameterName(method, "is", Operation.GET));
             metadata.setTypeClass(this.resolveParameterType(method));
         } else if (method.getName().startsWith("get")) {
             metadata.setOperation(Operation.GET);
-            metadata.setParameter(this.resolveParameterName(method, "get"));
+            attributeName=this.resolveAttributeName(method, "get", Operation.GET);
+            metadata.setParameter(this.resolveParameterName(method, "get", Operation.GET ));
             metadata.setTypeClass(this.resolveParameterType(method));
         } else if (method.getName().startsWith("set")) {
             metadata.setOperation(Operation.SET);
-            metadata.setParameter(this.resolveParameterName(method, "set"));
+            attributeName=this.resolveAttributeName(method, "set", Operation.SET);
+            metadata.setParameter(this.resolveParameterName(method, "set", Operation.SET));
             metadata.setTypeClass(method.getParameterTypes()[0]);
         }
-        metadata.setConverter(this.resolveConverter(method));
-        metadata.setOptional(this.resolveOptional(method));
-        metadata.setDefaultValue(this.resolveDefaultValue(method));
+        metadata.setConverter(this.resolveConverter(method, metadata.getOperation(), attributeName));
+        metadata.setOptional(this.resolveOptional(method, metadata.getOperation(), attributeName));
+        metadata.setDefaultValue(this.resolveDefaultValue(method, metadata.getOperation(), attributeName));
         metadata.setQualifier(this.resolveQualifier(method, invocationArgumnets));
         return metadata;
     }
 
-    private String resolveQualifier(Method method, Object[] invocationArgumnets) {
+    protected <T extends Annotation> T findAnnotation(Class<T> annotationType, Method method, Operation operation, String paramName) {
+        T annotation = method.getAnnotation(annotationType);
+        if (annotation == null) {
+            //not found on the specified method. for setters it looks for getter annotations
+            if (Operation.SET.equals(operation)) {
+                for (Method currMethod : method.getDeclaringClass().getMethods()) {
+                    if (currMethod.getName().endsWith(paramName)) {
+                        if (currMethod.getAnnotation(annotationType) != null) {
+                            return currMethod.getAnnotation(annotationType);
+                        }
+                    }
+                }
+            }
+        }
+        return annotation;
+    }
+
+    protected String resolveQualifier(Method method, Object[] invocationArgumnets) {
         String qualifier = null;
         if (invocationArgumnets != null) {
             Annotation[][] paramAnnotations = method.getParameterAnnotations();
@@ -80,8 +101,8 @@ public class DefaultParameterResolver implements ParameterResolver {
                 {
                     for (Annotation annotation : paramAnnotations[paramIndex]) {
                         if (annotation instanceof ParameterQualifier) {
-                            if (invocationArgumnets[paramIndex]!=null) {
-                                qualifier=invocationArgumnets[paramIndex].toString();
+                            if (invocationArgumnets[paramIndex] != null) {
+                                qualifier = invocationArgumnets[paramIndex].toString();
                             }
                         }
                     }
@@ -91,38 +112,40 @@ public class DefaultParameterResolver implements ParameterResolver {
         return qualifier;
     }
 
-    private boolean resolveOptional(Method method) {
-        if (method.isAnnotationPresent(Parameter.class)) {
-            return method.getAnnotation(Parameter.class).optional();
+    private boolean resolveOptional(Method method, Operation operation, String attributeName) {
+        Parameter parameterAnnotation = this.findAnnotation(Parameter.class, method, operation, attributeName);
+        if (parameterAnnotation!=null) {
+            return parameterAnnotation.optional();
         }
         return false;
     }
 
-    private Class<? extends Converter> resolveConverter(Method method) {
-        if (method.isAnnotationPresent(Parameter.class)) {
-            if (method.getAnnotation(Parameter.class).converter().length > 0) {
-                return method.getAnnotation(Parameter.class).converter()[0];
-            }
+    private Class<? extends Converter> resolveConverter(Method method, Operation operation, String attributeName) {
+        Parameter parameterAnnotation = this.findAnnotation(Parameter.class, method, operation, attributeName);
+        if (parameterAnnotation != null && parameterAnnotation.converter().length > 0) {
+            return parameterAnnotation.converter()[0];
         }
         return null;
     }
 
-    private String resolveDefaultValue(Method method) {
-        if (method.isAnnotationPresent(Parameter.class)) {
-            if (!method.getAnnotation(Parameter.class).defaultValue().equals(Parameter.UNDEFINED)) {
-                return method.getAnnotation(Parameter.class).defaultValue();
-            }
+    private String resolveDefaultValue(Method method, Operation operation, String attributeName) {
+        Parameter parameterAnnotation = this.findAnnotation(Parameter.class, method, operation, attributeName);
+        if (parameterAnnotation != null && !parameterAnnotation.defaultValue().equals(Parameter.UNDEFINED)) {
+            return parameterAnnotation.defaultValue();
         }
         return null;
     }
 
-    private String resolveParameterName(Method method, String prefix) {
-        String name = null;
-        if (method.isAnnotationPresent(Parameter.class) && !method.getAnnotation(Parameter.class).name().equals(Parameter.UNDEFINED)) {
-            name = method.getAnnotation(Parameter.class).name();
-        } else {
-            name = method.getName().substring(prefix.length());
-        }
+    private String resolveAttributeName(Method method, String prefix, Operation operation) {
+        return method.getName().substring(prefix.length());
+    }
+    
+    private String resolveParameterName(Method method, String prefix, Operation operation) {
+        String name = this.resolveAttributeName(method, prefix, operation);
+        Parameter parameterAnnotation = this.findAnnotation(Parameter.class, method, operation, name);
+        if (parameterAnnotation!=null && !parameterAnnotation.name().equals(Parameter.UNDEFINED)) {
+            name = parameterAnnotation.name();
+        } 
         return name;
     }
 

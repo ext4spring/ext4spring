@@ -17,14 +17,13 @@ package org.ext4spring.parameter;
 
 import java.lang.reflect.Method;
 
-import org.ext4spring.parameter.DefaultParameterResolver;
 import org.ext4spring.parameter.annotation.Parameter;
 import org.ext4spring.parameter.annotation.ParameterBean;
 import org.ext4spring.parameter.annotation.ParameterQualifier;
+import org.ext4spring.parameter.converter.tv.TVConverter;
 import org.ext4spring.parameter.model.Metadata;
 import org.ext4spring.parameter.model.Operation;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DefaultParameterResolverTest extends TestBase {
@@ -142,8 +141,19 @@ public class DefaultParameterResolverTest extends TestBase {
             return optionalStringParam;
         }
         
+        @SuppressWarnings("unused")
         public String getQualifiedParam(@ParameterQualifier String qualifier) {
             return null;
+        }
+        
+        @Parameter(converter=TVConverter.class, defaultValue="true", optional=true, name="differentName")
+        public Boolean isValue() {
+            return false;
+        }
+        
+        @SuppressWarnings("unused")
+        public void setValue(Boolean value) {
+            
         }
     }
 
@@ -196,6 +206,14 @@ public class DefaultParameterResolverTest extends TestBase {
         Assert.assertEquals("QualifiedParam", metadata.getParameter());
         Assert.assertEquals("q1", metadata.getQualifier());
         Assert.assertEquals("QualifiedParam.q1", metadata.getFullParameterName());
+    
+        Method setterMethodWithAnnotationsOnGetter = annotatedClass.getMethod("setValue",Boolean.class);
+        metadata = defaultParameterResolver.parse(setterMethodWithAnnotationsOnGetter, null);
+        Assert.assertTrue(metadata.isOptional());
+        Assert.assertEquals(Boolean.class, metadata.getTypeClass());
+        Assert.assertEquals(TVConverter.class, metadata.getConverter());
+        Assert.assertEquals("true", metadata.getDefaultValue());
+        Assert.assertEquals("differentName", metadata.getParameter());
     
     }
 
