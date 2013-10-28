@@ -24,43 +24,43 @@ import org.ext4spring.parameter.exception.ParameterConverterException;
 
 public class JSONConverter implements Converter {
 
-	private final ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
-	public JSONConverter() {
-		this.mapper = new ObjectMapper();
-		this.mapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
-		this.mapper.getSerializationConfig().disable(org.codehaus.jackson.map.SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS);
-	}
+    public JSONConverter() {
+        this.mapper = new ObjectMapper();
+        this.mapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+        this.mapper.getSerializationConfig().disable(org.codehaus.jackson.map.SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
-	public void setDateFormat(DateFormat dateFormat) {
-		this.mapper.getSerializationConfig().setDateFormat(dateFormat);
-		this.mapper.getDeserializationConfig().setDateFormat(dateFormat);
-	}
+    public void setDateFormat(DateFormat dateFormat) {
+        this.mapper.getSerializationConfig().setDateFormat(dateFormat);
+        this.mapper.getDeserializationConfig().setDateFormat(dateFormat);
+    }
 
-	public void setJacksonFeature(Feature feature, boolean state) {
-		this.mapper.configure(feature, state);
-	}
+    public void setJacksonFeature(Feature feature, boolean state) {
+        this.mapper.configure(feature, state);
+    }
 
-	@Override
-	public Class<Object> getHandledClass() {
-		return Object.class;
-	}
+    @Override
+    public Class<Object> getHandledClass() {
+        return Object.class;
+    }
 
-	@Override
-	public <T> T toTypedValue(String stringValue, Class<T> type) {
-		try {
-			return mapper.readValue(stringValue, type);
-		} catch (Exception e) {
-			throw new ParameterConverterException(e);
-		}
-	}
+    @Override
+    public <T> T toTypedValue(String stringValue, Class<T> type) {
+        try {
+            return mapper.readValue(stringValue, type);
+        } catch (Exception e) {
+            throw new ParameterConverterException(e);
+        }
+    }
 
-	@Override
-	public String toStringValue(Object typedValue) {
-		try {
-			return mapper.writeValueAsString(typedValue);
-		} catch (Exception e) {
-			throw new ParameterConverterException(e);
-		}
-	}
+    @Override
+    public String toStringValue(Object typedValue) {
+        try {
+            return mapper.writeValueAsString(typedValue);
+        } catch (Exception e) {
+            throw new ParameterConverterException(e);
+        }
+    }
 }

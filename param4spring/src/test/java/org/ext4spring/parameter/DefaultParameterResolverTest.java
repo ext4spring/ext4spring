@@ -199,11 +199,13 @@ public class DefaultParameterResolverTest extends TestBase {
         Method annotatedOptionalMethod = annotatedClass.getMethod("getOptionalStringParam");
         metadata = defaultParameterResolver.parse(annotatedOptionalMethod,null);
         Assert.assertTrue(metadata.isOptional());
+        Assert.assertFalse(metadata.isQualified());
         Assert.assertEquals(String.class, metadata.getTypeClass());
 
         Method annotatedMethodWithQualifier = annotatedClass.getMethod("getQualifiedParam",String.class);
         metadata = defaultParameterResolver.parse(annotatedMethodWithQualifier,new Object[]{"q1"});
         Assert.assertEquals("QualifiedParam", metadata.getParameter());
+        Assert.assertTrue(metadata.isQualified());
         Assert.assertEquals("q1", metadata.getQualifier());
         Assert.assertEquals("QualifiedParam.q1", metadata.getFullParameterName());
     

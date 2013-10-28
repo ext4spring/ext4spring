@@ -26,20 +26,24 @@ public class Metadata {
     private Class<?> typeClass;
     private Operation operation;
     private String domain;
+    //The attribute name of the parameter (field name of Java Bean with capitalized letter)
+    private String attribute;
+
+    //The parameter name of the parameter equals with the attribute name if a @Parameter doesn't override it 
     private String parameter;
     private String defaultValue;
     private Class<? extends Converter> converter;
     private boolean optional;
+    private boolean qualified;
     private String qualifier;
 
-    
     public String getFullParameterName() {
-        if (qualifier!=null) {
-            return parameter+"."+qualifier;
+        if (qualifier != null) {
+            return parameter + "." + qualifier;
         }
         return parameter;
     }
-    
+
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -54,6 +58,14 @@ public class Metadata {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public String getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(String attribute) {
+        this.attribute = attribute;
     }
 
     public String getParameter() {
@@ -104,10 +116,12 @@ public class Metadata {
         this.qualifier = qualifier;
     }
 
+
+
     @Override
     public String toString() {
-        return "domain=" + domain + ", parameter=" + parameter + ", typeClass=" + typeClass + ", operation=" + operation + ", defaultValue=" + defaultValue + ", optional=" + optional + ", qualifier="
-                + qualifier;
+        return "Metadata [typeClass=" + typeClass + ", operation=" + operation + ", domain=" + domain + ", attribute=" + attribute + ", parameter=" + parameter + ", defaultValue=" + defaultValue
+                + ", converter=" + converter + ", optional=" + optional + ", qualified=" + qualified + ", qualifier=" + qualifier + "]";
     }
 
     @Override
@@ -118,6 +132,14 @@ public class Metadata {
         result = prime * result + ((parameter == null) ? 0 : parameter.hashCode());
         result = prime * result + ((typeClass == null) ? 0 : typeClass.hashCode());
         return result;
+    }
+
+    public boolean isQualified() {
+        return qualified;
+    }
+
+    public void setQualified(boolean qualified) {
+        this.qualified = qualified;
     }
 
     @Override

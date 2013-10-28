@@ -52,10 +52,10 @@ public class ApplicationSettings {
     private long size = SIZE;
     private double price;
     private Date releaseDate;
-    private final Map<String,String> userColor = new HashMap<String, String>();
+    private Map<String,String> userColor = new HashMap<String, String>();
 
     public ApplicationSettings() {
-        userColor.put(null, "black");
+        userColor.put("default", "black");
     }
     
     public boolean isSupported() {
@@ -107,9 +107,10 @@ public class ApplicationSettings {
     public void setXmlConfig(String xmlConfig) {
         this.xmlConfig = xmlConfig;
     }
-
+    
     @Parameter(converter=TVConverter.class)
     public String getUserColor(@ParameterQualifier String userName){
         return this.userColor.get(userName);
     }
+    
 }

@@ -15,14 +15,38 @@
  ******************************************************************************/
 package org.ext4spring.parameter;
 
+import java.util.Map;
+
 import org.ext4spring.parameter.exception.ParameterException;
 
 /**
  * Service to handle parameter beans without AOP
+ * 
  * @author pborbas
- *
  */
 public interface ParameterBeanService {
-	<T> T readParameterBean(Class<T> typeClass) throws ParameterException;
-	<T> void writeParameterBean(T parameterBean)  throws ParameterException;
+    /**
+     * Reads the parameter bean values from the configured repositories and populates the values into the bean fields
+     * 
+     * @param typeClass
+     * @throws ParameterException
+     */
+    <T> T readParameterBean(Class<T> typeClass) throws ParameterException;
+
+    /**
+     * Reads the parameter bean, that has qualifier values from the configured repositories and populates the values
+     * into the bean fields. The qualified parameter have to be java.util.Map. The Map keys will be the parameterQualifiers values.
+     * 
+     * @param typeClass
+     * @param parameterQualifiers list of qualifiers that will be read from the repositories for @ParameterQualifier annotated methods.
+     * @throws ParameterException
+     */
+    <T> T readParameterBean(Class<T> typeClass, String... parameterQualifiers) throws ParameterException;
+
+    /**
+     * Writes the parameter bean values into the underlying repositories.
+     * @param parameterBean
+     * @throws ParameterException
+     */
+    <T> void writeParameterBean(T parameterBean) throws ParameterException;
 }

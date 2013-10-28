@@ -15,8 +15,12 @@
  ******************************************************************************/
 package org.ext4spring.parameter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
+import org.ext4spring.parameter.converter.json.JSONConverter;
 import org.ext4spring.parameter.example.ApplicationSettings;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,29 +32,31 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testNoAOPContext.xml")
-public class NoAOPParameterBeanTest extends TestBase{
+public class NoAOPParameterBeanTest extends TestBase {
 
-	@Autowired
-	ParameterBeanService parameterBeanService;
-	private JdbcTemplate jdbcTemplate;
+    @Autowired
+    ParameterBeanService parameterBeanService;
+    private JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
-	
-	@Test
-	public void testPropertyValuesReadByParameterBeanService() {
-		ApplicationSettings applicationSettings = this.parameterBeanService.readParameterBean(ApplicationSettings.class);
-		TestUtil.assertApplicationSettingsValid(applicationSettings);
-	}
+    @Test
+    public void testPropertyValuesReadByParameterBeanService() {
+        ApplicationSettings applicationSettings = this.parameterBeanService.readParameterBean(ApplicationSettings.class, "user1", "user2");
+        TestUtil.assertApplicationSettingsValid(applicationSettings);
+        Assert.assertEquals("black", applicationSettings.getUserColor("default"));
+        Assert.assertEquals("blue", applicationSettings.getUserColor("user1"));
+        Assert.assertEquals("red", applicationSettings.getUserColor("user2"));
+    }
 
-	@Test
-	public void testPropertyValuesWriteByParameterBeanService() {
-		ApplicationSettings applicationSettings = this.parameterBeanService.readParameterBean(ApplicationSettings.class);
-		applicationSettings.setName("Changed name");
-		this.parameterBeanService.writeParameterBean(applicationSettings);
-		Assert.assertEquals(1, jdbcTemplate.queryForInt("Select count(*) from parameters where data='\"Changed name\"'"));
-	}
+    @Test
+    public void testPropertyValuesWriteByParameterBeanService() {
+        ApplicationSettings applicationSettings = this.parameterBeanService.readParameterBean(ApplicationSettings.class);
+        applicationSettings.setName("Changed name");
+        this.parameterBeanService.writeParameterBean(applicationSettings);
+        Assert.assertEquals(1, jdbcTemplate.queryForInt("Select count(*) from parameters where data='\"Changed name\"'"));
+    }
 }
